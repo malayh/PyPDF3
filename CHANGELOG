@@ -1,0 +1,4 @@
+﻿Version 0.0.1, 2018-04-20
+--------------------------
+
+ - Initial commit, source is identical to PyPDF2 at commit 1775bdc4b9b3281a31b7d966223b8f02f53ba5fc
