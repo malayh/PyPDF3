@@ -2686,6 +2686,43 @@ class PageObject(DictionaryObject):
                 text += "\n"
         return text
 
+    def extractTextWithCoordinates(self):
+        """
+        Returns a list
+        """
+        
+        content = self["/Contents"].getObject()
+        if not isinstance(content, ContentStream):
+            content = ContentStream(content, self.pdf)
+        # Note: we check all strings are TextStringObjects.  ByteStringObjects
+        # are strings where the byte->string encoding was unknown, so adding
+        # them to the text here would be gibberish.
+
+        textWithLoctions=[]
+
+        textData=dict()
+        inAWord=False
+
+        for operands, operator in content.operations:
+            if operator == b_("BT"):
+                inAWord=True
+
+            if inAWord:
+                if operator == b_("Tm"):
+                    textData["Tm"]=operands
+                if operator == b_("Tj"):
+                    textData["Tj"]=operands
+                if operator == b_("TJ"):
+                    textData["Tj"]=operands
+
+            if operator == b_("ET"):
+                textWithLoctions.append(textData)
+
+                inAWord=False
+                textData=dict()
+
+        return textWithLoctions
+        
     mediaBox = createRectangleAccessor("/MediaBox", ())
     """
     A :class:`RectangleObject<PyPDF3.generic.RectangleObject>`, expressed in default user space units,
